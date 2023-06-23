@@ -1,11 +1,13 @@
 {% extends "blog/base.html" %}
 {% load crispy_forms_tags %}
+{% load humanize %}
 {% block content %}
 <div class="content-section col-lg-12 col-md-12 col-sm-12 tutorial-style" style="min-height:65vh;">
     <legend class="border-bottom mb-4">Profile Information:</legend>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="media">
+            <img class='rounded-circle accaunt-img profile-image' src=" {{ form.instance.user_image.url }}">
             <div class="media-body">
                 <h2 class="account-heading">{{ form.instance.username }}
                     <small class="text-muted">({{ form.instance.status }})</small>
@@ -17,7 +19,7 @@
         </div>
 
         {% if user.username == form.instance.username %}
-            <fieldset class="form-group">
+            <fieldset class="form-group" enctype="multipart/form-data">
                 <legend class="border-bottom mb-4">Edit Profile Information</legend>
                 <div class="form-row">
                     <div class="form-group col-md-6 mb-0">
@@ -30,6 +32,11 @@
                 {{ form.email|as_crispy_field }}
                 {{ form.description|as_crispy_field }}
 
+                <div class="form-group">
+                    <label for="{{ form.user_image.id_for_label }}">User Image</label>
+                    <input type="file" name="{{ form.user_image.name }}" class="form-control-file" id="{{ form.user_image.id_for_label }}">
+                </div>
+
                 <a href="{% url 'password_change' %}">Change password?</a>
             </fieldset>
             <div class="form-group">
@@ -40,10 +47,10 @@
         {% for post in posts %}
         <div class="post">
             <div class="date">
-                {{ post.published_date }}
+                {{ post.published_date|naturaltime }}
             </div>
             <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>
-            <p>{{ post.text|linebreaksbr }}</p>
+            <p>{{ post.text|truncatechars:125|linebreaksbr }}</p>
         </div>
         {% endfor %}
     </form>

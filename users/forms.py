@@ -33,10 +33,11 @@ class UserLoginForm(AuthenticationForm):
     
 class UserUpdateForm(forms.ModelForm):
     email = forms.EmailField()
+    user_image = forms.ImageField()
 
     class Meta:
         model = get_user_model()
-        fields = ['first_name', 'last_name', 'email', 'description']
+        fields = ['first_name', 'last_name', 'email', 'description', 'user_image']
 
 class SetPasswordForm(SetPasswordForm):
     class Meta:

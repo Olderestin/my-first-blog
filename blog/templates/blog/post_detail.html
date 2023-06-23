@@ -1,16 +1,44 @@
 {% extends 'blog/base.html' %}
-
+{% load humanize %}
+{% load crispy_forms_tags %}
 {% block content %}
-    <div class="post">
-        {% if post.published_date %}
+    <div class="post media">
+        <img class='rounded-circle accaunt-img profile-image' src=" {{ post.author.user_image.url }}">
+        <div class="media-body">
             <div class="date">
-                {{ post.published_date }}
+                <a href="{% url 'profile' post.author %}">{{post.author }}</a>
+                - {{ post.published_date|naturaltime }}
             </div>
-        {% endif %}
-        {% if user.is_authenticated %}
-            <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
-        {% endif %}
-        <h1>{{ post.title }}</h1>
-        <p>{{ post.text|linebreaksbr }}</p>
+            <h1><a href="#">{{ post.title }}</a></h1>
+            <p class="">{{ post.text|linebreaksbr }}</p>
+        </div>
+        
     </div>
+    {% if user.is_authenticated %}
+    <form class="form-group" method="POST">
+        {% csrf_token %}
+        {{ form.text|as_crispy_field }}
+        <button class="btn btn-outline-info" type="submit">Add comment</button>
+    </form>
+    {% endif %}
+
+    {% if not post.comments.all %}
+    <h2>No comments yet...</h2>
+    {% else %}
+    <h2>Comments:</h2>
+    {%for comment in post.comments.all %}
+    <div class="post media border-top">
+        <img class='rounded-circle accaunt-img comment-image' src=" {{ comment.author.user_image.url }}">
+        <div class="media-body">
+            <div class="date">
+                <a href="{% url 'profile' comment.author %}">{{comment.author }}</a>
+                - {{ comment.date|naturaltime }}
+            </div>
+            <p class="">{{ comment.text|linebreaksbr }}</p>
+        </div>
+        
+    </div>
+    {% endfor %}
+    {% endif %}
+
 {% endblock %}

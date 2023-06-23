@@ -3,11 +3,17 @@ h1 a {
     font-family: 'Lobster';
 }
 
+.search {
+    position: relative;
+
+}
+
 
 .page-header {
     background-color: #ff9400;
     margin-top: 0;
     padding: 20px 20px 20px 40px;
+    position: relative;
 }
 
 .page-header h1, .page-header h1 a, .page-header h1 a:visited, .page-header h1 a:active {
@@ -28,19 +34,28 @@ h1, h2, h3, h4 {
     color: #828282;
 }
 
-.save {
-    float: right;
-}
-
 .post-form textarea, .post-form input {
     width: 100%;
 }
 
-.top-menu, .top-menu:hover, .top-menu:visited {
+.top-menu-link  {
     color: #ffffff;
-    float: right;
     font-size: 26pt;
     margin-right: 20px;
+    font-family: 'Lobster';
+}
+
+.top-menu-link:hover{
+    color: blue;
+
+}
+
+
+.top-menu {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .post {
@@ -49,3 +64,24 @@ h1, h2, h3, h4 {
 
 .post h1 a, .post h1 a:visited {
     color: #000000;
+
+}
+
+.profile-image {
+    width: 125px;
+    height: 125px;
+    padding: 5px;
+}
+
+.comment-image {
+    width: 90px;
+    height: 90px;
+    padding: 5px;
+}
+
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
+}

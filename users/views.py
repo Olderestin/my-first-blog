@@ -112,7 +112,7 @@ def custom_login(request):
 def profile(request, username):
     if request.method == 'POST':
         user = request.user
-        form = UserUpdateForm(request.POST,instance=user)
+        form = UserUpdateForm(request.POST or None, request.FILES or None, instance=user)
         if form.is_valid():
             user_form = form.save()
             messages.success(request, f'{user_form.username}, Your profile has been updated!')

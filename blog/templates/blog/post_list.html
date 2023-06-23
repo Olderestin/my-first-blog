@@ -1,14 +1,22 @@
 {% extends 'blog/base.html' %}
+{% load humanize %}
 
 {% block content %}
-    {% for post in posts %}
-        <div class="post">
-            <div class="date">
-                {{ post.published_date }}
-                <a href="{% url 'profile' post.author %}">{{post.author }}</a>
+    {% for post in page_obj %}
+        <div class="post media border-top">
+            <img class='rounded-circle accaunt-img profile-image' src=" {{ post.author.user_image.url }}">
+            <div class="media-body">
+                <div class="date">
+                    <a href="{% url 'profile' post.author %}">{{post.author }}</a>
+                    - {{ post.published_date|naturaltime }}
+                </div>
+                <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>
+                <p class="">{{ post.text|truncatechars:125|linebreaksbr }}</p>
+                <div class="date">
+                    Comments: {{ post.comments.all|length }}
+                </div>
             </div>
-            <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>
-            <p>{{ post.text|linebreaksbr }}</p>
+            
         </div>
     {% endfor %}
 {% endblock %}
