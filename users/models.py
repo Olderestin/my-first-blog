@@ -20,6 +20,9 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
     
+    def is_moderator(self):
+        return self.status == 'moderator'
+    
 @receiver(pre_save, sender=CustomUser)
 def delete_previous_image(sender, instance, **kwargs):
     if instance.pk:

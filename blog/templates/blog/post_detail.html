@@ -12,7 +12,12 @@
             <h1><a href="#">{{ post.title }}</a></h1>
             <p class="">{{ post.text|linebreaksbr }}</p>
         </div>
-        
+
+
+        {% if user.is_authenticated and user == post.author or user.is_moderator %}
+        <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}"><button type="button" class="btn btn-outline-info">Edit <i class="fas fa-pencil-alt"></i></button></a>
+        {% endif %}
+
     </div>
     {% if user.is_authenticated %}
     <form class="form-group" method="POST">

@@ -10,6 +10,7 @@ from django.shortcuts import render, get_object_or_404
 from .forms import PostForm, CommentForm
 
 from django.contrib.auth.decorators import login_required
+from .decorators import check_user
 
 # Create your views here.
 def post_list(request):
@@ -27,7 +28,7 @@ def post_detail(request, pk):
         if form.is_valid():
             comment = form.save(commit=False)
             comment.author = request.user
-            comment.post = Post.objects.get(pk=pk)
+            comment.post = post
             comment.save()
             return redirect('post_detail', pk=post.pk)
             
@@ -49,14 +50,14 @@ def post_new(request):
         form = PostForm()
     return render(request, 'blog/post_edit.html', {'form': form})
 
-@login_required
+@check_user
 def post_edit(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if request.method == "POST":
         form = PostForm(request.POST, instance=post)
         if form.is_valid():
             post = form.save(commit=False)
-            post.author = request.user
+            # post.author = request.user
             post.published_date = timezone.now()
             post.save()
             return redirect('post_detail', pk=post.pk)
