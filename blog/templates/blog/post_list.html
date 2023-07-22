@@ -18,6 +18,7 @@
             </div>
             {% if user.is_authenticated and user == post.author or user.is_moderator %}
             <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}"><button type="button" class="btn btn-outline-info">Edit <i class="fas fa-pencil-alt"></i></button></a>
+            <a class="btn btn-default" href="{% url 'post_delete' pk=post.pk %}"><button type="button" class="btn btn-outline-danger">Delete <i class="fas fa-solid fa-trash"></i></button></a>
             {% endif %}
             
         </div>

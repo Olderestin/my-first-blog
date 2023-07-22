@@ -1,0 +1,10 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    <legend class="border-bottom mb-4">Do you really want to delete this post???</legend>
+    <form method='POST'>
+        {% csrf_token %}
+        <button class="btn btn-outline-danger">YES</button>
+        <a class="btn btn-default" href="javascript:history.back()"><button type="button" class="btn btn-outline-info">NO</button></a>
+    </form>
+{% endblock %}

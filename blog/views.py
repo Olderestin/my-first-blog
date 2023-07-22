@@ -93,6 +93,15 @@ def post_edit(request, pk):
     else:
         return render(request, 'blog/post_edit.html', {'post': post})
 
+@check_user
+def post_delete(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if request.method == "POST":
+        post.delete()
+        return redirect("post_list")
+
+    return render(request, 'blog/post_delete.html')
+
 class Search(ListView):
 
     paginate_by = 3
