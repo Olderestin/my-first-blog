@@ -2,8 +2,93 @@
 
 {% block content %}
     <h1>New post</h1>
-    <form method="POST" class="post-form">{% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="save btn btn-default">Save</button>
-    </form>
+    <label>Title</label>
+    <input type="text" id="title" class="form-control" required value="{{ post.title }}">
+    <label>Text</label>
+    <textarea id="text" class="form-control" required>{{ post.text }}</textarea>
+    <input type="file" class="js-filepond" multiple multiple data-allow-reorder="true">
+    <button type="button" id="saveBtn" class="save btn btn-default">Save</button>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var files = []
+
+            
+            FilePond.registerPlugin(FilePondPluginFileValidateSize);
+            FilePond.registerPlugin(FilePondPluginFileValidateType);
+            FilePond.registerPlugin(FilePondPluginImagePreview);
+            FilePond.setOptions({
+                allowMultiple:true,
+                maxFiles:4,
+                maxFileSize: '3MB'
+              })
+            const inputElement = document.querySelector('.js-filepond');
+            const pond = FilePond.create( inputElement, {
+              acceptedFileTypes:['image/png', 'image/jpeg'],
+                onaddfile: (err, fileItem) => {
+                  if (!err) {
+                    files.push(fileItem.file)
+                    }
+                    console.log(files)
+                },
+                onremovefile: (err, fileItem) => {
+                  const index = files.indexOf(fileItem.file)
+                  if (index > -1) {
+                    files.splice(index, 1)
+                  }
+                  console.log(files)
+                }
+              } );
+
+              {% for p in post.postimage_set.all %}
+              pond.addFile("{{ p.image.url|urlencode }}");
+              {% endfor %}
+              
+              var formData = new FormData();
+              $(document).on('click', '#saveBtn', function(e) {
+
+                var title = $('#title').val();
+                var text = $('#text').val();
+                
+                if (!title || !text) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+
+                formData.append('length', files.length)
+                formData.append('title', $('#title').val())
+                formData.append('text', $('#text').val())
+                for (var i = 0; i < files.length; i++) {
+                    formData.append('images' + i, files[i])
+                }
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+    
+                $.ajax({
+                    type: 'POST',
+                    {% if post %}
+                    url: '{% url "post_edit" pk=post.pk %}',
+                    {% else %}
+                    url: '{% url "post_new" %}',
+                    {% endif %}
+                    data: formData,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    enctype: 'multipart/form-data',
+                    success: function (response) {
+                        alert('The post has been created!');
+                        window.location.href = response.redirect_url;
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.log(xhr.status + ":" + xhr.responseText)
+                    }
+                })
+            })
+        })
+    </script>
 {% endblock %}
+
+
+
+

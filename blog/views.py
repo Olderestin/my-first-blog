@@ -4,8 +4,10 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.views.generic.list import ListView
+from django.http import JsonResponse
+from django.urls import reverse
 
-from .models import Post
+from .models import Post, PostImage
 from django.shortcuts import render, get_object_or_404
 from .forms import PostForm, CommentForm
 
@@ -39,31 +41,57 @@ def post_detail(request, pk):
 @login_required
 def post_new(request):
     if request.method == "POST":
-        form = PostForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.published_date = timezone.now()
-            post.save()
-            return redirect('post_detail', pk=post.pk)
+        length = request.POST.get('length')
+        title = request.POST.get('title')
+        text = request.POST.get('text')
+
+        post = Post.objects.create(
+            title=title,
+            text=text,  
+            published_date = timezone.now(),
+            author = request.user
+        )
+
+        for file_num in range(0, int(length)):
+            PostImage.objects.create(
+                post = post,
+                image = request.FILES.get(f'images{file_num}')
+            )
+
+        response_data = {
+            'redirect_url': reverse('post_detail', kwargs={'pk': post.pk})
+        }
+        return JsonResponse(response_data)
+    
     else:
-        form = PostForm()
-    return render(request, 'blog/post_edit.html', {'form': form})
+        return render(request, 'blog/post_edit.html')
 
 @check_user
 def post_edit(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
-        if form.is_valid():
-            post = form.save(commit=False)
-            # post.author = request.user
-            post.published_date = timezone.now()
-            post.save()
-            return redirect('post_detail', pk=post.pk)
+        length = request.POST.get('length')
+        title = request.POST.get('title')
+        text = request.POST.get('text')
+
+        post.title = title
+        post.text = text
+        post.published_date = timezone.now()
+        post.save()
+        post.delete_related_images()
+        
+        for file_num in range(0, int(length)):
+            PostImage.objects.create(
+                post = post,
+                image = request.FILES.get(f'images{file_num}')
+            )
+
+        response_data = {
+            'redirect_url': reverse('post_detail', kwargs={'pk': post.pk})
+        }
+        return JsonResponse(response_data)
     else:
-        form = PostForm(instance=post)
-    return render(request, 'blog/post_edit.html', {'form': form})
+        return render(request, 'blog/post_edit.html', {'post': post})
 
 class Search(ListView):
 

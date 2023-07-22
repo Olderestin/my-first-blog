@@ -10,8 +10,41 @@
                 - {{ post.published_date|naturaltime }}
             </div>
             <h1><a href="#">{{ post.title }}</a></h1>
+
+            <div id="carouselExampleCaptions" class="carousel slide" data-ride="carousel">
+                <!--Indicators-->
+                <ol class="carousel-indicators">
+                {% for p in post.postimage_set.all %}
+                  <li data-target="#carouselExampleCaptions" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.counter0 == 0 %} active {% endif %}"></li>
+                {% endfor %}
+                </ol>
+                <!--/.Indicators-->
+                <!--Slides-->
+                <div class="carousel-inner">
+                  {% for p in post.postimage_set.all %}
+                  <div class="carousel-item {% if forloop.counter0 == 0 %} active {% endif %}">
+                    <img class="d-block w-100" src="{{p.image.url}}"
+                      alt="First slide">
+                  </div>
+                  {% endfor %}
+                  <!--/First slide-->
+                <!--/.Slides-->
+                <!--Controls-->
+                <a class="carousel-control-prev" href="#carouselExampleCaptions" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleCaptions" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+                <!--/.Controls-->
+              </div>
+            </div>
+
             <p class="">{{ post.text|linebreaksbr }}</p>
         </div>
+
 
 
         {% if user.is_authenticated and user == post.author or user.is_moderator %}

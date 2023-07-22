@@ -10,7 +10,7 @@
                     <a href="{% url 'profile' post.author %}">{{post.author }}</a>
                     - {{ post.published_date|naturaltime }}
                 </div>
-                <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>
+                <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>  
                 <p class="">{{ post.text|truncatechars:125|linebreaksbr }}</p>
                 <div class="date">
                     Comments: {{ post.comments.all|length }}
