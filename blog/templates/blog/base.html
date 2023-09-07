@@ -25,9 +25,9 @@
           <h1><a href="/">Django blog</a></h1>
 
             <form class="input-group top-menu w-25" action="{% url 'search' %}" method="GET">
-              <input type="text" class="form-control" placeholder="Search" name="search">
+              <input type="text" class="form-control" placeholder="Search" name="search" id="search-input">
               <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="submit">Search</button>
+                <button class="btn btn-outline-secondary" type="submit" id="search-button" disabled>Search</button>
               </div>
             </form>
             
@@ -124,6 +124,24 @@
           <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
           <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
           <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+
+          <script>
+            // Получите ссылки на поле ввода и кнопку
+            var searchInput = document.getElementById('search-input');
+            var searchButton = document.getElementById('search-button');
+          
+            // Добавьте слушатель событий для поля ввода
+            searchInput.addEventListener('input', function() {
+              // Проверьте, содержит ли поле ввода текст
+              if (searchInput.value.trim() !== '') {
+                // Если есть текст, включите кнопку
+                searchButton.removeAttribute('disabled');
+              } else {
+                // Если текст отсутствует, отключите кнопку
+                searchButton.setAttribute('disabled', 'disabled');
+              }
+            });
+          </script>
           
     </body>
 
