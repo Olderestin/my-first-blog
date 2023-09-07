@@ -79,9 +79,18 @@ h1, h2, h3, h4 {
     padding: 5px;
 }
 
-.truncate {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 200px;
+.not_found_container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Распределяет элементы с максимальным отступом между ними */
+}
+
+.text {
+    flex: 1; /* Занимает доступное пространство слева от изображения */
+    max-width: 70%; /* Устанавливает максимальную ширину для текста */
+    font-size: 2em;
+}
+
+.image {
+    max-width: 30%; /* Устанавливает максимальную ширину для изображения */
 }
