@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     # added_apps
     'blog',
     'users',
+    'API',
     'crispy_forms',
     'crispy_bootstrap4',
     'django.contrib.humanize',
@@ -54,6 +55,9 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+
+    # for API
+    'rest-framework',
 ]
 
 SITE_ID = 1
