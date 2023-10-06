@@ -57,7 +57,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
 
     # for API
-    'rest-framework',
+    'rest_framework',
+    'drf_yasg',
 ]
 
 SITE_ID = 1
@@ -137,7 +138,12 @@ DATABASES = {
     }
 }
 
-
+REST_FRAMEWORK = {
+    'NON_FIELD_ERRORS_KEY': 'error',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
