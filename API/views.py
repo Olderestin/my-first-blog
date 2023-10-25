@@ -2,7 +2,7 @@ from django.urls import reverse
 from rest_framework import generics
 from django.conf import settings
 from users.models import CustomUser
-from .serializers import RegisterSerializer, EmailVerificationSerializer
+from .serializers import RegisterSerializer, EmailVerificationSerializer, LoginSerializer
 from rest_framework.response import Response
 from rest_framework import status, views
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -38,6 +38,7 @@ class RegisterView(generics.GenericAPIView):
 class VerifyEmail(views.APIView):
 
     serializer_class = EmailVerificationSerializer
+
     token_param_config = openapi.Parameter(
         'token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
 
@@ -55,6 +56,17 @@ class VerifyEmail(views.APIView):
             return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
         except jwt.DecodeError:
             return Response({'error': 'Invalid Token'}, status=status.HTTP_400_BAD_REQUEST)
+        
+class LoginAPIView(generics.GenericAPIView):
+
+    serializer_class = LoginSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
 
 
