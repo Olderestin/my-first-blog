@@ -60,6 +60,8 @@ INSTALLED_APPS = [
     # for API
     'rest_framework',
     'drf_yasg',
+    'rest_framework_simplejwt.token_blacklist',
+
 ]
 
 SITE_ID = 1

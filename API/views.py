@@ -1,10 +1,9 @@
 from django.urls import reverse
-from rest_framework import generics
 from django.conf import settings
 from users.models import CustomUser
-from .serializers import RegisterSerializer, EmailVerificationSerializer, LoginSerializer
+from .serializers import LogoutSerializer, RegisterSerializer, EmailVerificationSerializer, LoginSerializer
 from rest_framework.response import Response
-from rest_framework import status, views
+from rest_framework import generics, status, views, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
@@ -65,6 +64,18 @@ class LoginAPIView(generics.GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class LoguotAPIView(generics.GenericAPIView):
+    serializer_class = LogoutSerializer
+
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 
