@@ -10,7 +10,7 @@ from django.core.mail import EmailMessage
 import jwt
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from django.utils.http import urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import smart_str, force_str, DjangoUnicodeDecodeError, force_bytes
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
@@ -39,8 +39,6 @@ class RegisterView(generics.GenericAPIView):
         return Response(user_data, status=status.HTTP_201_CREATED)
     
 class VerifyEmail(views.APIView):
-
-    serializer_class = EmailVerificationSerializer
 
     token_param_config = openapi.Parameter(
         'token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
@@ -86,7 +84,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
     serializer_class = RequestPasswordResetSerializer
 
     def post(self, request):
-        
+
         email = request.data.get('email', '')
 
         if CustomUser.objects.filter(email=email).exists():
@@ -105,8 +103,23 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             return Response({'error': 'There is no user with this email'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class PasswordTokenCheckAPI(generics.GenericAPIView):
-    pass
+class PasswordTokenCheckAPI(views.APIView):
+
+    def get(self, request, uidb64, token):
+
+        try:
+            id = smart_str(urlsafe_base64_decode(uidb64))
+            user = CustomUser.objects.get(id=id)
+        
+            if not PasswordResetTokenGenerator().check_token(user, token):
+                return Response({'error': 'Token is not valid, please request a new one'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'success': True, 'message': 'Credentials valid', 'uidb4': uidb64, 'token': token}, status=status.HTTP_200_OK)
+        except DjangoUnicodeDecodeError:
+            return Response('error', 'Token is not valid, please request a new one', status=status.HTTP_401_UNAUTHORIZED)
+        
+
+
+
 
 
 
