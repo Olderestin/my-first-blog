@@ -86,8 +86,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
     serializer_class = RequestPasswordResetSerializer
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-
+        
         email = request.data.get('email', '')
 
         if CustomUser.objects.filter(email=email).exists():
@@ -103,7 +102,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             email.send()
             return Response({'success': 'We have sent you a link to reset your password'}, status=status.HTTP_200_OK)
         else:
-            raise Response({'error': 'There is no user with this email'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'There is no user with this email'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PasswordTokenCheckAPI(generics.GenericAPIView):
