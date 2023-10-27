@@ -1,7 +1,7 @@
 from django.urls import reverse
 from django.conf import settings
 from users.models import CustomUser
-from .serializers import LogoutSerializer, RegisterSerializer, EmailVerificationSerializer, LoginSerializer
+from .serializers import LogoutSerializer, RegisterSerializer, EmailVerificationSerializer, LoginSerializer, RequestPasswordResetSerializer
 from rest_framework.response import Response
 from rest_framework import generics, status, views, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -10,6 +10,10 @@ from django.core.mail import EmailMessage
 import jwt
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import smart_str, force_str, DjangoUnicodeDecodeError, force_bytes
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+
 
 # Create your views here.
 class RegisterView(generics.GenericAPIView):
@@ -76,6 +80,35 @@ class LoguotAPIView(generics.GenericAPIView):
         serializer.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class RequestPasswordResetEmail(generics.GenericAPIView):
+
+    serializer_class = RequestPasswordResetSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+
+        email = request.data.get('email', '')
+
+        if CustomUser.objects.filter(email=email).exists():
+            user = CustomUser.objects.get(email=email)
+            uid64 = urlsafe_base64_encode(force_bytes(user.id))
+            token = PasswordResetTokenGenerator().make_token(user)
+            current_site = get_current_site(request=request).domain
+            relative_link = reverse('api-password-reset-confirm', kwargs={'uid64': uid64, 'token': token})
+            absurl = 'http://'+current_site+relative_link
+            email_body = 'Hello, \n Use link below to reset your password \n'+absurl
+            email_subject = 'Reset your password'
+            email = EmailMessage(email_subject, email_body, to=[user.email])
+            email.send()
+            return Response({'success': 'We have sent you a link to reset your password'}, status=status.HTTP_200_OK)
+        else:
+            raise Response({'error': 'There is no user with this email'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PasswordTokenCheckAPI(generics.GenericAPIView):
+    pass
+
 
 
 
