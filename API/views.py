@@ -1,7 +1,7 @@
 from django.urls import reverse
 from django.conf import settings
 from users.models import CustomUser
-from .serializers import LogoutSerializer, RegisterSerializer, EmailVerificationSerializer, LoginSerializer, RequestPasswordResetSerializer
+from .serializers import LogoutSerializer, RegisterSerializer, EmailVerificationSerializer, LoginSerializer, RequestPasswordResetSerializer, SetNewPasswordSerializer
 from rest_framework.response import Response
 from rest_framework import generics, status, views, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -89,10 +89,10 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
 
         if CustomUser.objects.filter(email=email).exists():
             user = CustomUser.objects.get(email=email)
-            uid64 = urlsafe_base64_encode(force_bytes(user.id))
+            uidb64 = urlsafe_base64_encode(force_bytes(user.id))
             token = PasswordResetTokenGenerator().make_token(user)
             current_site = get_current_site(request=request).domain
-            relative_link = reverse('api-password-reset-confirm', kwargs={'uid64': uid64, 'token': token})
+            relative_link = reverse('api-password-reset-confirm', kwargs={'uidb64': uidb64, 'token': token})
             absurl = 'http://'+current_site+relative_link
             email_body = 'Hello, \n Use link below to reset your password \n'+absurl
             email_subject = 'Reset your password'
@@ -117,6 +117,16 @@ class PasswordTokenCheckAPI(views.APIView):
         except DjangoUnicodeDecodeError:
             return Response('error', 'Token is not valid, please request a new one', status=status.HTTP_401_UNAUTHORIZED)
         
+
+class SetNewPassword(generics.GenericAPIView):
+    
+    serializer_class = SetNewPasswordSerializer
+
+    def patch(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid()
+        return Response({'success': True, 'message': 'Password reset success'}, status=status.HTTP_200_OK)
+
 
 
 
