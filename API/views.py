@@ -1,9 +1,10 @@
 from django.urls import reverse
 from django.conf import settings
 from users.models import CustomUser
-from .serializers import LogoutSerializer, RegisterSerializer, EmailVerificationSerializer, LoginSerializer, RequestPasswordResetSerializer, SetNewPasswordSerializer
+from blog.models import Post, PostImage
+from .serializers import LogoutSerializer, RegisterSerializer, EmailVerificationSerializer, LoginSerializer, RequestPasswordResetSerializer, SetNewPasswordSerializer, PostSerializer, PostImageSerializer
 from rest_framework.response import Response
-from rest_framework import generics, status, views, permissions
+from rest_framework import generics, status, views, permissions, viewsets, mixins, parsers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
@@ -13,6 +14,7 @@ from drf_yasg import openapi
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import smart_str, force_str, DjangoUnicodeDecodeError, force_bytes
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from .permissions import IsOwner
 
 
 # Create your views here.
@@ -20,6 +22,7 @@ class RegisterView(generics.GenericAPIView):
 
     serializer_class = RegisterSerializer
 
+    @swagger_auto_schema(tags=['Authentication'])
     def post(self, request):
         user = request.data
         serializer = self.serializer_class(data=user)
@@ -43,7 +46,7 @@ class VerifyEmail(views.APIView):
     token_param_config = openapi.Parameter(
         'token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
 
-    @swagger_auto_schema(manual_parameters=[token_param_config])
+    @swagger_auto_schema(manual_parameters=[token_param_config], tags=['Authentication'])
     def get(self, request):
         token = request.GET.get('token')
         try:
@@ -62,6 +65,7 @@ class LoginAPIView(generics.GenericAPIView):
 
     serializer_class = LoginSerializer
 
+    @swagger_auto_schema(tags=['Authentication'])
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -72,6 +76,7 @@ class LoguotAPIView(generics.GenericAPIView):
 
     permission_classes = (permissions.IsAuthenticated, )
 
+    @swagger_auto_schema(tags=['Authentication'])
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -83,6 +88,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
 
     serializer_class = RequestPasswordResetSerializer
 
+    @swagger_auto_schema(tags=['Authentication'])
     def post(self, request):
 
         email = request.data.get('email', '')
@@ -105,6 +111,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
 
 class PasswordTokenCheckAPI(views.APIView):
 
+    @swagger_auto_schema(tags=['Authentication'])
     def get(self, request, uidb64, token):
 
         try:
@@ -122,11 +129,29 @@ class SetNewPassword(generics.GenericAPIView):
     
     serializer_class = SetNewPasswordSerializer
 
+    @swagger_auto_schema(tags=['Authentication'])
     def patch(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid()
         return Response({'success': True, 'message': 'Password reset success'}, status=status.HTTP_200_OK)
+    
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
 
+    def get_permissions(self):
+        if self.action == 'list' or self.action == 'retrieve':
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [permissions.IsAuthenticated, IsOwner]
+        return (permission() for permission in permission_classes)
+
+class PostImageViewSet(mixins.CreateModelMixin,
+                        mixins.DestroyModelMixin,
+                        viewsets.GenericViewSet):
+    queryset = PostImage.objects.all()
+    serializer_class = PostImageSerializer
+    parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser)
 
 
 

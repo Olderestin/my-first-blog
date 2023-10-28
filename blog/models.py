@@ -35,7 +35,7 @@ def generate_image_filename(instance, filename):
 
 
 class PostImage(models.Model):
-    post = models.ForeignKey(Post, default=None, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, related_name='images', default=None, on_delete=models.CASCADE)
     image = models.ImageField(upload_to=generate_image_filename)
 
     def delete(self, *args, **kwargs):

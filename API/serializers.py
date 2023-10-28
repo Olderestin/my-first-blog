@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from users.models import CustomUser
+from blog.models import Post, Comment, PostImage
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from django.contrib.auth import authenticate
 from rest_framework.exceptions import AuthenticationFailed
@@ -130,3 +131,39 @@ class SetNewPasswordSerializer(serializers.Serializer):
             return user
         except Exception as e:
             raise AuthenticationFailed('The reset link is invalid', 401)
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['username']
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
+
+class PostImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostImage
+        fields = '__all__'
+
+class PostSerializer(serializers.ModelSerializer):
+    author = UserSerializer()
+    images = PostImageSerializer(many=True, read_only=True)
+    comments = CommentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Post
+        fields = ['id', 'author', 'title', 'text', 'images', 'comments']
+
+    def create(self, validate_data):
+        author_data = validate_data.get('author')
+        author_username = author_data.get('username')
+
+        try:
+            author = CustomUser.objects.get(username=author_username)
+        except CustomUser.DoesNotExist:
+            raise serializers.ValidationError('There is no user with this username')
+        
+        post = Post.objects.create(author=author, **validate_data)
+        return post

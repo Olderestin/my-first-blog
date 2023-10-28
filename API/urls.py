@@ -1,6 +1,11 @@
-from django.urls import path
-from .views import LoguotAPIView, RegisterView, VerifyEmail, LoginAPIView, RequestPasswordResetEmail, PasswordTokenCheckAPI, SetNewPassword
+from django.urls import path, include
+from .views import LoguotAPIView, RegisterView, VerifyEmail, LoginAPIView, RequestPasswordResetEmail, PasswordTokenCheckAPI, SetNewPassword, PostViewSet, PostImageViewSet
 from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'posts', PostViewSet)
+router.register(r'post-images', PostImageViewSet)
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='api-register'),
@@ -10,5 +15,6 @@ urlpatterns = [
     path('logout', LoguotAPIView.as_view(), name='api-logout'),
     path('request-reset-email/', RequestPasswordResetEmail.as_view(), name='api-request-reset-email'),
     path('password-reset/<uidb64>/<token>/', PasswordTokenCheckAPI.as_view(), name='api-password-reset-confirm'),
-    path('password-reset-complete/', SetNewPassword.as_view(), name='api-password-reset-complete')
+    path('password-reset-complete/', SetNewPassword.as_view(), name='api-password-reset-complete'),
+    path('', include(router.urls))
 ]
