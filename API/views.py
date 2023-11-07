@@ -153,6 +153,8 @@ class PostImageViewSet(mixins.CreateModelMixin,
     serializer_class = PostImageSerializer
     parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser)
 
+    permission_classes = (permissions.IsAuthenticated, IsOwner, )
+
 
 
 
