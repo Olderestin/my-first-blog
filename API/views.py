@@ -2,7 +2,7 @@ from django.urls import reverse
 from django.conf import settings
 from users.models import CustomUser
 from blog.models import Post, PostImage
-from .serializers import LogoutSerializer, RegisterSerializer, EmailVerificationSerializer, LoginSerializer, RequestPasswordResetSerializer, SetNewPasswordSerializer, PostSerializer, PostImageSerializer
+from .serializers import LogoutSerializer, RegisterSerializer, EmailVerificationSerializer, LoginSerializer, RequestPasswordResetSerializer, SetNewPasswordSerializer, PostSerializer, PostImageSerializer, UserProfileSerializer
 from rest_framework.response import Response
 from rest_framework import generics, status, views, permissions, viewsets, mixins, parsers
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -14,7 +14,8 @@ from drf_yasg import openapi
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import smart_str, force_str, DjangoUnicodeDecodeError, force_bytes
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from .permissions import IsOwner
+from .permissions import IsOwner, ProfileIsOwner
+from django.shortcuts import get_object_or_404
 
 
 # Create your views here.
@@ -32,7 +33,7 @@ class RegisterView(generics.GenericAPIView):
         user = CustomUser.objects.get(email=user_data['email'])
         token = RefreshToken.for_user(user).access_token
         current_site = get_current_site(request).domain
-        relativeLink = reverse('email-verify')
+        relativeLink = reverse('api-email-verify')
         absurl = 'http://'+current_site+relativeLink+"?token="+str(token)
         email_body = 'Hi '+user.username + \
             ' Use the link below to verify your email \n' + absurl
@@ -154,6 +155,35 @@ class PostImageViewSet(mixins.CreateModelMixin,
     parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser)
 
     permission_classes = (permissions.IsAuthenticated, IsOwner, )
+
+class ProfileViewSet(mixins.RetrieveModelMixin,
+                     mixins.UpdateModelMixin,
+                     mixins.ListModelMixin,
+                     viewsets.GenericViewSet):
+
+    queryset = CustomUser.objects.all()
+    serializer_class = UserProfileSerializer
+
+    lookup_field = 'username'
+
+    http_method_names = ['get', 'patch']
+    
+    
+    def get_permissions(self):
+        if self.action == 'retrieve' or self.action == 'list':
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [permissions.IsAuthenticated, ProfileIsOwner]
+        return (permission() for permission in permission_classes)
+    
+    def get_object(self):
+        queryset = self.get_queryset()
+
+        lookup_value = self.kwargs[self.lookup_field]
+
+        obj = get_object_or_404(queryset, **{self.lookup_field: lookup_value})
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 
 

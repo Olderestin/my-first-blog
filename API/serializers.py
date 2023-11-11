@@ -167,3 +167,11 @@ class PostSerializer(serializers.ModelSerializer):
         
         post = Post.objects.create(author=author, **validate_data)
         return post
+    
+class UserProfileSerializer(serializers.ModelSerializer):
+    post_set = PostSerializer(many=True, read_only=True)
+    username = serializers.CharField(read_only=True)
+    status = serializers.CharField(read_only=True)
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'status', 'description', 'user_image', 'post_set']

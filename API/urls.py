@@ -1,11 +1,12 @@
 from django.urls import path, include
-from .views import LoguotAPIView, RegisterView, VerifyEmail, LoginAPIView, RequestPasswordResetEmail, PasswordTokenCheckAPI, SetNewPassword, PostViewSet, PostImageViewSet
+from .views import LoguotAPIView, RegisterView, VerifyEmail, LoginAPIView, RequestPasswordResetEmail, PasswordTokenCheckAPI, SetNewPassword, PostViewSet, PostImageViewSet, ProfileViewSet
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r'posts', PostViewSet)
 router.register(r'post-images', PostImageViewSet)
+router.register(r'profile', ProfileViewSet)
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='api-register'),
