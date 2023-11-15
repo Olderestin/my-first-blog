@@ -19,7 +19,7 @@ class Post(models.Model):
         return self.title
     
     def delete_related_images(self):
-        for post_image in self.postimage_set.all():
+        for post_image in self.images.all():
             post_image.delete()
 
     def delete(self, *args, **kwargs):
