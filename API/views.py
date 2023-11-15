@@ -14,7 +14,7 @@ from drf_yasg import openapi
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import smart_str, force_str, DjangoUnicodeDecodeError, force_bytes
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from .permissions import IsOwner, ProfileIsOwner
+from .permissions import IsOwner, ProfileIsOwner, PostImageIsOwner
 from django.shortcuts import get_object_or_404
 
 
@@ -154,7 +154,7 @@ class PostImageViewSet(mixins.CreateModelMixin,
     serializer_class = PostImageSerializer
     parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser)
 
-    permission_classes = (permissions.IsAuthenticated, IsOwner, )
+    permission_classes = (permissions.IsAuthenticated, PostImageIsOwner, )
 
 class ProfileViewSet(mixins.RetrieveModelMixin,
                      mixins.UpdateModelMixin,

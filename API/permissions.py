@@ -9,3 +9,8 @@ class ProfileIsOwner(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return obj.username == request.user.username
+    
+class PostImageIsOwner(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        return obj.post.author == request.user
