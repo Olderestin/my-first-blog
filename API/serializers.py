@@ -148,7 +148,7 @@ class PostImageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PostSerializer(serializers.ModelSerializer):
-    author = UserSerializer()
+    author = UserSerializer(read_only=True)
     images = PostImageSerializer(many=True, read_only=True)
     comments = CommentSerializer(many=True, read_only=True)
 
@@ -157,13 +157,7 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ['id', 'author', 'title', 'text', 'images', 'comments']
 
     def create(self, validate_data):
-        author_data = validate_data.get('author')
-        author_username = author_data.get('username')
-
-        try:
-            author = CustomUser.objects.get(username=author_username)
-        except CustomUser.DoesNotExist:
-            raise serializers.ValidationError('There is no user with this username')
+        author = self.context['request'].user
         
         post = Post.objects.create(author=author, **validate_data)
         return post
