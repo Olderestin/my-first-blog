@@ -147,6 +147,13 @@ class PostImageSerializer(serializers.ModelSerializer):
         model = PostImage
         fields = '__all__'
 
+    def validate(self, attrs):
+        super().validate(attrs)
+        post = attrs.get('post')
+        if post.images.count() >= 4:
+            raise serializers.ValidationError({'error': 'Post has maximum number of PostImages'})
+        return attrs
+
 class PostSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     images = PostImageSerializer(many=True, read_only=True)
