@@ -41,7 +41,7 @@
                 }
               } );
 
-              {% for p in post.postimage_set.all %}
+              {% for p in post.images.all %}
               pond.addFile("{{ p.image.url|urlencode }}");
               {% endfor %}
               

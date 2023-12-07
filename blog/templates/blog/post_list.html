@@ -12,18 +12,18 @@
                 </div>
                 <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>
 
-                {% if post.postimage_set.all %}
+                {% if post.images.all %}
                 <div id="carouselExampleCaptions{{ forloop.counter }}" class="carousel slide" data-ride="carousel" data-interval="false">
                     <!--Indicators-->
                     <ol class="carousel-indicators">
-                    {% for p in post.postimage_set.all %}
+                    {% for p in post.images.all %}
                       <li data-target="#carouselExampleCaptions{{ forloop.parentloop.counter }}" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.counter0 == 0 %} active {% endif %}"></li>
                     {% endfor %}
                     </ol>
                     <!--/.Indicators-->
                     <!--Slides-->
                     <div class="carousel-inner">
-                      {% for p in post.postimage_set.all %}
+                      {% for p in post.images.all %}
                       <div class="carousel-item {% if forloop.counter0 == 0 %} active {% endif %}">
                         <img class="d-block w-100" src="{{p.image.url}}"
                           alt="First slide">
