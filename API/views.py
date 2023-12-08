@@ -102,8 +102,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             absurl = 'http://'+current_site+relative_link
             email_body = 'Hello, \n Use link below to reset your password \n'+absurl
             email_subject = 'Reset your password'
-            email = EmailMessage(email_subject, email_body, to=[user.email])
-            email.send()
+            sending_email_task.delay(email_subject, email_body, to=[user.email])
             return Response({'success': 'We have sent you a link to reset your password'}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'There is no user with this email'}, status=status.HTTP_400_BAD_REQUEST)
