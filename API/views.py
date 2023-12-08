@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import generics, status, views, permissions, viewsets, mixins, parsers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
+from users.tasks import sending_email_task
 import jwt
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -38,8 +38,7 @@ class RegisterView(generics.GenericAPIView):
         email_body = 'Hi '+user.username + \
             ' Use the link below to verify your email \n' + absurl
         email_subject = 'Verify your email'
-        email = EmailMessage(email_subject, email_body, to=[user.email])
-        email.send()
+        sending_email_task.delay(email_subject, email_body, to=[user.email])
         return Response(user_data, status=status.HTTP_201_CREATED)
     
 class VerifyEmail(views.APIView):

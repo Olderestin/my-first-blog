@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from django.core.mail import EmailMessage
+from .tasks import sending_email_task
 
 from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm
 from .decorators import user_not_authenticated
@@ -49,12 +49,9 @@ def activateEmail(request, user, to_email):
         'token': account_activation_token.make_token(user),
         "protocol": 'https' if request.is_secure() else 'http'
     })
-    email = EmailMessage(mail_subject, message, to=[to_email])
-    if email.send():
-        messages.success(request, f'Dear <b>{user}</b>, please go to you email <b>{to_email}</b> inbox and click on \
+    sending_email_task.delay(mail_subject, message, to=[to_email])
+    messages.success(request, f'Dear <b>{user}</b>, please go to you email <b>{to_email}</b> inbox and click on \
                      recieved activation link to confirm and complete the registration. <b>Note:</b> Check your spam folder.')
-    else:
-        messages.error(request, f'Problem sending email to {to_email}, check if you typed it correctly.')
 
 @user_not_authenticated
 def register(request):
@@ -163,9 +160,9 @@ def password_reset_request(request):
                     'token': account_activation_token.make_token(associated_user),
                     "protocol": 'https' if request.is_secure() else 'http'
                 })
-                email = EmailMessage(subject, message, to=[associated_user.email])
-                if email.send():
-                    messages.success(request, 
+                sending_email_task.delay(subject, message, to=[associated_user.email])
+                
+                messages.success(request, 
                         """
                         <h2>Password reset sent</h2><hr>
                         <p>
@@ -175,8 +172,6 @@ def password_reset_request(request):
                         </p>
                         """
                     )
-                else:
-                    messages.error(request, f'Problem sending reset password email, <b>SERVER PROBLEM</b>')
 
             return redirect('post_list')
     form = PasswordResetForm()
