@@ -7,6 +7,8 @@ from rest_framework.exceptions import AuthenticationFailed
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils import timezone
+
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -170,15 +172,16 @@ class PostSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     images = PostImageSerializer(many=True, read_only=True)
     comments = CommentSerializer(many=True, read_only=True)
+    published_date = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = Post
-        fields = ['id', 'author', 'title', 'text', 'images', 'comments']
+        fields = ['id', 'author', 'published_date', 'title', 'text', 'images', 'comments']
 
     def create(self, validate_data):
         author = self.context['request'].user
         
-        post = Post.objects.create(author=author, **validate_data)
+        post = Post.objects.create(author=author, published_date=timezone.now(), **validate_data)
         return post
     
 class UserProfileSerializer(serializers.ModelSerializer):
