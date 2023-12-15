@@ -1,8 +1,8 @@
 from django.urls import reverse
 from django.conf import settings
 from users.models import CustomUser
-from blog.models import Post, PostImage
-from .serializers import LogoutSerializer, RegisterSerializer, EmailVerificationSerializer, LoginSerializer, RequestPasswordResetSerializer, SetNewPasswordSerializer, PostSerializer, PostImageSerializer, UserProfileSerializer
+from blog.models import Post, PostImage, Comment
+from .serializers import CommentSerializer, LogoutSerializer, RegisterSerializer, EmailVerificationSerializer, LoginSerializer, RequestPasswordResetSerializer, SetNewPasswordSerializer, PostSerializer, PostImageSerializer, UserProfileSerializer
 from rest_framework.response import Response
 from rest_framework import generics, status, views, permissions, viewsets, mixins, parsers
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -153,6 +153,13 @@ class PostImageViewSet(mixins.CreateModelMixin,
     parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser)
 
     permission_classes = (permissions.IsAuthenticated, PostImageIsOwner, )
+
+class CommentViewSet(mixins.CreateModelMixin,
+                    mixins.DestroyModelMixin,
+                    viewsets.GenericViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = (permissions.IsAuthenticated, IsOwner, )
 
 class ProfileViewSet(mixins.RetrieveModelMixin,
                      mixins.UpdateModelMixin,

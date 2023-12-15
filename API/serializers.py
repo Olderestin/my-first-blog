@@ -138,9 +138,17 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['username']
 
 class CommentSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+
     class Meta:
         model = Comment
         fields = '__all__'
+
+    def create(self, validate_data):
+        author = self.context['request'].user
+        
+        comment = Comment.objects.create(author=author, **validate_data)
+        return comment
 
 class PostImageSerializer(serializers.ModelSerializer):
     class Meta:

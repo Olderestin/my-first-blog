@@ -1,11 +1,12 @@
 from django.urls import path, include
-from .views import LoguotAPIView, RegisterView, VerifyEmail, LoginAPIView, RequestPasswordResetEmail, PasswordTokenCheckAPI, SetNewPassword, PostViewSet, PostImageViewSet, ProfileViewSet
+from .views import CommentViewSet, LoguotAPIView, RegisterView, VerifyEmail, LoginAPIView, RequestPasswordResetEmail, PasswordTokenCheckAPI, SetNewPassword, PostViewSet, PostImageViewSet, ProfileViewSet
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r'posts', PostViewSet)
 router.register(r'post-images', PostImageViewSet)
+router.register(r'comment', CommentViewSet)
 router.register(r'profile', ProfileViewSet)
 
 urlpatterns = [
