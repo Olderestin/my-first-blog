@@ -56,6 +56,4 @@ ___
 
 ## Unfinished Tasks
 
-- [ ] Create API for comments.
-- [ ] Implement user avatar changing functionality.
 - [ ] Add API for social authentication.
