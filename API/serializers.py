@@ -188,6 +188,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
     post_set = PostSerializer(many=True, read_only=True)
     username = serializers.CharField(read_only=True)
     status = serializers.CharField(read_only=True)
+    email = serializers.EmailField(required=False)
+    
     class Meta:
         model = CustomUser
         fields = ['id', 'username', 'first_name', 'last_name', 'email', 'status', 'description', 'user_image', 'post_set']

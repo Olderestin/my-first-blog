@@ -172,7 +172,8 @@ class ProfileViewSet(mixins.RetrieveModelMixin,
     lookup_field = 'username'
 
     http_method_names = ['get', 'patch']
-    
+
+    parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser)
     
     def get_permissions(self):
         if self.action == 'retrieve' or self.action == 'list':
