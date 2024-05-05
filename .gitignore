@@ -9,3 +9,8 @@ db.sqlite3
 .env
 venv
 data.json
+data
+media/post_images/*
+!media/post_images/.gitkeep
+media/user_images/*
+!media/user_images/.gitkeep
