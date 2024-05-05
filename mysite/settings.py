@@ -36,6 +36,7 @@ ALLOWED_HOSTS = ['127.0.0.1', '.pythonanywhere.com']
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -63,7 +64,10 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
 
     'django_celery_results',
-
+    
+    # for chat
+    'chat',
+    'channels',
 ]
 
 SITE_ID = 1
@@ -230,4 +234,15 @@ CACHES = {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://redis:6379/1",
     }
+}
+
+# chat
+ASGI_APPLICATION = "mysite.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
 }
